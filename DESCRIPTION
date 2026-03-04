@@ -1,6 +1,6 @@
-Package: ecaqutils
+Package: ecanairquality
 Type: Package
-Title: Utility functions to help with getting data from the Ecan website
+Title: Helpful functions to get data and generate plots for ecan air quality data
 Version: 0.1.0
 Authors@R: c(
     person(
@@ -9,10 +9,10 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: Retrieves data from the ecan data portal website
 License: MIT
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 LazyData: true
 Imports:
   dplyr,
@@ -22,5 +22,5 @@ Imports:
   stringr,
   readr,
   tidyr
-URL: https://github.com/bws200/ecaqutils
-BugReports: https://github.com/bws200/ecaqutils/issues
+URL: https://github.com/bws200/ecanairquality
+RoxygenNote: 7.3.3
