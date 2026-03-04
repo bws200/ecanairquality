@@ -1,17 +1,16 @@
-#' Title
+#' Retrieve daily data from the Ecan website for all sites
 #'
-#' @description Retrieved daily data from Ecan website for all sites
-#' @param from_date
-#' @param to_date
+#' @param from_date The "from" date to get data.
+#' @param to_date The "to" date to get data until.
 #'
 #' @returns Daiy data from all sites available
 #' @export
 #'
 #' @examples
-#' getEcandaily(from_date = "01/01/2025", to_date = "31/01/2025")
+#' getEcanDaily(from_date = "01/01/2025", to_date = "31/01/2025")
 getEcanDaily <- function(from_date, to_date) {
 
-  # This method uses a stored procedure (`pAir_MonDailyAllParams`) to retrieve **daily averages** from the [ecan website](https://data.ecan.govt.nz/Catalogue/Method?MethodId=98#tab-data). The averages are calculated by a stored procedure `dbo.XXsomethingXX` and stored within the Envista database. The relevant table in the Envista database is `dbo.Alldaily.`
+  # This method uses a stored procedure (`pAir_MonDailyAllParams`) to retrieve **daily averages** via the [ecan website](https://data.ecan.govt.nz/Catalogue/Method?MethodId=98#tab-data). The stored procedure retrieves  The averages are calculated by a stored procedure `dbo.XXsomethingXX` and stored within the Envista database. The relevant table in the Envista database is `dbo.Alldaily.`
 
   # Convert type and add a day to account for days between
   from_date <- lubridate::dmy(from_date)
@@ -67,16 +66,13 @@ getEcanDaily <- function(from_date, to_date) {
   # Now can continue on with getting the data via the website.
 
   # This is the base URL we want to use before adding parameters
-  url_1 <- "https://data.ecan.govt.nz:443/data/98/Air/"
-  url_2 <- "Air%20quality%20data%20for%20a%20monitored%20site%20(daily)/CSV?"
-  base_url = paste0(url_1, url_2)
+base_url <- "https://data.ecan.govt.nz:443/data/98/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(daily)/CSV?"
 
   # Get the date into the right format for URL
   from_date_url <- stringr::str_replace_all(from_date,"/","%2F")
   to_date_url <- stringr::str_replace_all(to_date,"/","%2F")
 
   # Now can make the actual request in a loop to retrieve data for all stations which have available data via the ecan website.
-
 
   # Initialise datalist to be populated inside the for loop
   datalist = list()
