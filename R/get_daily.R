@@ -7,8 +7,8 @@
 #' @export
 #'
 #' @examples
-#' getEcanDaily(from_date = "01/01/2025", to_date = "31/01/2025")
-getEcanDaily <- function(from_date, to_date) {
+#' get_daily(from_date = "01/01/2025", to_date = "31/01/2025")
+get_daily <- function(from_date, to_date) {
 
   # This method uses a stored procedure (`pAir_MonDailyAllParams`) to retrieve **daily averages** via the [ecan website](https://data.ecan.govt.nz/Catalogue/Method?MethodId=98#tab-data). The stored procedure retrieves  The averages are calculated by a stored procedure `dbo.XXsomethingXX` and stored within the Envista database. The relevant table in the Envista database is `dbo.Alldaily.`
 
