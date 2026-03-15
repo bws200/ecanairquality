@@ -2,21 +2,24 @@
 % Please edit documentation in R/get_stations.R
 \name{get_stations}
 \alias{get_stations}
-\title{Title}
+\title{Retrieve air quality station list from Environment Canterbury}
 \usage{
 get_stations()
 }
 \value{
-A data frame containing air quality stations at Environment Canterbury
+A tibble with the following columns:
+\describe{
+\item{SiteNo}{Station ID}
+\item{StationName}{Station name}
+\item{LatestDateTime}{Most recent observation timestamp (POSIXct)}
+}
 }
 \description{
-Title
+Downloads a table of air quality monitoring stations from the
+Environment Canterbury data portal, including the latest observation date.
 }
 \examples{
 \dontrun{
 get_stations()
 }
-
-
-
 }

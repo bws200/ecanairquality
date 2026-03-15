@@ -2,17 +2,27 @@
 % Please edit documentation in R/get_daily_one_station.R
 \name{get_daily_one_station}
 \alias{get_daily_one_station}
-\title{Title}
+\title{Retrieve daily air quality data for a single station}
 \usage{
 get_daily_one_station(site_id, from_date, to_date)
 }
 \arguments{
-\item{site_id}{The site ID which can be retrieved by the get_stations function}
+\item{site_id}{Numeric or character station identifier.}
 
-\item{from_date}{From date}
+\item{from_date}{Character date in \code{"dd/mm/yyyy"} format.}
 
-\item{to_date}{To date}
+\item{to_date}{Character date in \code{"dd/mm/yyyy"} format.}
+}
+\value{
+A tibble in long format containing:
+\describe{
+\item{DateTime}{Date of observation}
+\item{StationName}{Station name}
+\item{name}{Pollutant name}
+\item{value}{Daily value}
+}
 }
 \description{
-Title
+Downloads daily averaged air quality data from the
+Environment Canterbury data portal for one monitoring site.
 }

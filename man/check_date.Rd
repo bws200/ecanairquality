@@ -2,13 +2,22 @@
 % Please edit documentation in R/check_date.R
 \name{check_date}
 \alias{check_date}
-\title{Title}
+\title{Validate date format}
 \usage{
 check_date(date)
 }
 \arguments{
-\item{date}{}
+\item{date}{Character date string.}
+}
+\value{
+Logical. \code{TRUE} if the date can be parsed as \code{"dd/mm/yyyy"},
+otherwise \code{FALSE}.
 }
 \description{
-Title
+Checks whether a date string is in \code{"dd/mm/yyyy"} format and can be
+successfully parsed using \code{lubridate::dmy()}.
+}
+\examples{
+check_date("01/01/2025")
+check_date("2025-01-01")
 }

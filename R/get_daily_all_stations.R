@@ -11,7 +11,7 @@
 #' long format.
 #'
 #' @export
-get_daily_all_stations <- function(from_date, to_date, station_ids = station_id_list$SiteNo) {
+get_daily_all_stations <- function(from_date, to_date) {
 
   from <- lubridate::dmy(from_date)
   to <- lubridate::dmy(to_date)
@@ -31,6 +31,10 @@ get_daily_all_stations <- function(from_date, to_date, station_ids = station_id_
     round(lubridate::time_length(time_interval, "days")),
     " days"
   )
+
+  station_id_list <- ecanairquality::get_stations()
+
+  station_ids <- station_id_list$SiteNo
 
   datalist <- purrr::map(
     station_ids,

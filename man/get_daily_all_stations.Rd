@@ -10,6 +10,8 @@ get_daily_all_stations(from_date, to_date)
 \item{from_date}{Character. Start date in \code{"dd/mm/yyyy"} format.}
 
 \item{to_date}{Character. End date in \code{"dd/mm/yyyy"} format.}
+
+\item{station_ids}{Vector of station IDs to retrieve.}
 }
 \value{
 A data frame containing daily air quality measurements in
@@ -18,10 +20,4 @@ long format.
 \description{
 Retrieves daily averaged air quality data for all monitoring sites
 available via the Environment Canterbury (ECan) data portal.
-}
-\examples{
-\dontrun{
-get_daily("01/01/2025", "31/01/2025")
-}
-
 }
