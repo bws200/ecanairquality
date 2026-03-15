@@ -1,7 +1,7 @@
 Package: ecanairquality
 Type: Package
 Title: Helpful functions to get data and generate plots for ecan air quality data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(
       "Ben", "Scott",
