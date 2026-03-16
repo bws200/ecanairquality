@@ -11,19 +11,24 @@
 #' and returns data as tibbles suitable for analysis with tidyverse tools.
 #'
 #' @docType package
-#' @name ecanair
+#' @name ecanairquality
 #' @keywords internal
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom httr GET content stop_for_status
-#' @importFrom lubridate dmy dmy_hms ymd interval time_length today
+#' @import rlang
+#' @importFrom cli cli
+#' @importFrom withr with_
 #' @importFrom dplyr mutate bind_rows
-#' @importFrom tidyr pivot_longer
-#' @importFrom stringr str_replace_all
+#' @importFrom glue glue
+#' @importFrom httr GET content stop_for_status
 #' @importFrom janitor round_half_up
+#' @importFrom lifecycle deprecated
+#' @importFrom lubridate dmy dmy_hms ymd interval time_length today
 #' @importFrom purrr map map_dfr
 #' @importFrom readr read_csv
+#' @importFrom stringr str_replace_all
 #' @importFrom tibble as_tibble
+#' @importFrom tidyr pivot_longer
 ## usethis namespace: end
 NULL

@@ -15,7 +15,7 @@
 #' get_stations()
 #' }
 get_stations <- function() {
-
+  LatestDateTime <- NULL
   response_stations <- httr::GET(
     "http://data.ecan.govt.nz/data/23/Air/Air%20quality%20sites%20monitored/CSV"
   )

@@ -5,7 +5,6 @@
 #'
 #' @param from_date Character. Start date in `"dd/mm/yyyy"` format.
 #' @param to_date Character. End date in `"dd/mm/yyyy"` format.
-#' @param station_ids Vector of station IDs to retrieve.
 #'
 #' @return A data frame containing daily air quality measurements in
 #' long format.

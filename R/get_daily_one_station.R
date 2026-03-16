@@ -16,6 +16,9 @@
 #' }
 
 get_daily_one_station <- function(site_id, from_date, to_date) {
+  DateTime <- NULL
+  StationName <- NULL
+  value <- NULL
 
   base_url <- "https://data.ecan.govt.nz:443/data/98/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(daily)/CSV"
 

@@ -10,8 +10,6 @@ get_daily_all_stations(from_date, to_date)
 \item{from_date}{Character. Start date in \code{"dd/mm/yyyy"} format.}
 
 \item{to_date}{Character. End date in \code{"dd/mm/yyyy"} format.}
-
-\item{station_ids}{Vector of station IDs to retrieve.}
 }
 \value{
 A data frame containing daily air quality measurements in
