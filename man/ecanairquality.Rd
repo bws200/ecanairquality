@@ -29,5 +29,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Ben Scott \email{ben.scott@ecan.govt.nz}
 
+Authors:
+\itemize{
+  \item Ben Scott \email{ben.scott@ecan.govt.nz}
+}
+
 }
 \keyword{internal}
