@@ -42,7 +42,7 @@ get_daily_one_station <- function(site_id, from_date, to_date) {
   dat_raw <- httr::content(response, encoding = "UTF-8", as = "text")
 
   dat <- readr::read_csv(
-    dat_raw,
+    I(dat_raw),
     show_col_types = FALSE
   )
 
