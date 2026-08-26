@@ -133,8 +133,8 @@ parse_school_holidays <- function(ics_files) {
   if (nrow(master_holiday_dates) == 0) {
     return(tibble::tibble(
       Event = character(),
-      Start_Date = Date(),
-      End_Date = Date(),
+      Start_Date = as.Date(character()),
+      End_Date = as.Date(character()),
       Source = character()
     ))
   }
@@ -336,5 +336,4 @@ update_holiday_history <- function(target_year, dev_mode = FALSE) {
   message("Success: Historical log updated at: ", csv_path)
   return(invisible(updated_history))
 }
-
 
