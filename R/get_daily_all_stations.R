@@ -5,45 +5,38 @@
 #'
 #' @param from_date Character. Start date in `"dd/mm/yyyy"` format.
 #' @param to_date Character. End date in `"dd/mm/yyyy"` format.
-#' @param on_error How to handle a station request failure: `"warn"` (the
-#'   default) continues with other stations and warns, `"stop"` aborts the
-#'   request, or `"ignore"` continues silently.
+#' @param on_error How to handle a station request failure: `"ignore"` (the default)
+#'   continues silently`,"warn"` continues with other stations and displays a warning
+#'   message, `"stop"` aborts the request
 #'
 #' @return A data frame containing daily air quality measurements in
 #' long format.
 #'
 #' @export
-get_daily_all_stations <- function(from_date, to_date,
-                                   on_error = c("warn", "stop", "ignore")) {
+get_daily_all_stations <- function(
+    from_date = "1/01/2026", to_date = "31/01/2026", on_error = c("ignore","stop","warn")
+    ) {
 
-  if (!check_date(from_date) || !check_date(to_date)) {
+  on_error <- match.arg(on_error)
+
+  # Integrated format check (fixed to stop when invalid)
+  if (any(!check_date_format(c(from_date, to_date)))) {
     stop("Dates must be in 'dd/mm/yyyy' format.", call. = FALSE)
   }
 
-  on_error <- match.arg(on_error)
-  from <- lubridate::dmy(from_date)
-  to <- lubridate::dmy(to_date)
-
-  if (from > to) {
+  # Integrated chronology check
+  if (!check_date_chronology(from_date, to_date)) {
     stop("from_date must be earlier than to_date.", call. = FALSE)
   }
 
-  time_interval <- lubridate::interval(from, to)
-
-  message(
-    "Time interval: ",
-    round(lubridate::time_length(time_interval, "days")),
-    " days"
-  )
-
   station_id_list <- get_stations()
 
-  station_ids <- station_id_list$SiteNo
+  station_ids <- station_id_list$site_no
 
-  fetch_station <- function(site_id) {
+  fetch_station <- function(site_no) {
     tryCatch(
       get_daily_one_station(
-        site_id = site_id,
+        site_no = site_no,
         from_date = from_date,
         to_date = to_date
       ),

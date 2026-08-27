@@ -4,14 +4,21 @@
 \alias{get_stations}
 \title{Retrieve air quality station list from Environment Canterbury}
 \usage{
-get_stations()
+get_stations(request_timeout = 10)
+}
+\arguments{
+\item{request_timeout}{Numeric. Maximum time in seconds to wait for the server
+response before aborting. Default is \code{10}.}
 }
 \value{
 A tibble with the following columns:
 \describe{
-\item{SiteNo}{Station ID}
-\item{StationName}{Station name}
-\item{LatestDateTime}{Most recent observation timestamp (POSIXct)}
+\item{site_no}{Numeric. Unique station identifier}
+\item{site_name}{Short name of the station}
+\item{long_name}{Full name of the station}
+\item{city}{The city or town where the station is located}
+\item{air_shed}{The regional airshed classification}
+\item{latest_date_time}{The date and time of the most recent recorded observation}
 }
 }
 \description{

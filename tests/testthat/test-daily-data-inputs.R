@@ -1,7 +1,7 @@
 test_that("get_daily_one_station rejects invalid dates", {
   expect_error(
     get_daily_one_station(
-      site_id = 1,
+      site_no =  1,
       from_date = "2025-01-01",
       to_date = "02/01/2025"
     ),
@@ -22,7 +22,7 @@ test_that("get_daily_all_stations rejects a reversed date range", {
 test_that("get_daily_one_station rejects a reversed date range", {
   expect_error(
     get_daily_one_station(
-      site_id = 1,
+      site_no = 1,
       from_date = "02/01/2025",
       to_date = "01/01/2025"
     ),
@@ -32,12 +32,12 @@ test_that("get_daily_one_station rejects a reversed date range", {
 
 test_that("get_daily_all_stations can continue after a station failure", {
   station_data <- tibble::tibble(SiteNo = c(101, 202))
-  station_result <- function(site_id, from_date, to_date) {
-    if (site_id == 101) {
+  station_result <- function(site_no, from_date, to_date) {
+    if (site_no == 101) {
       stop("station unavailable", call. = FALSE)
     }
 
-    tibble::tibble(SiteNo = site_id)
+    tibble::tibble(SiteNo = site_no)
   }
 
   testthat::expect_warning(

@@ -4,21 +4,29 @@
 \alias{get_daily_one_station}
 \title{Retrieve daily air quality data for a single station}
 \usage{
-get_daily_one_station(site_id, from_date, to_date)
+get_daily_one_station(
+  site_no = 2,
+  from_date = "1/01/2026",
+  to_date = "31/01/2026",
+  request_timeout = 10
+)
 }
 \arguments{
-\item{site_id}{Numeric or character station identifier.}
+\item{site_no}{Numeric or character station identifier. Default is \code{2} (Riccarton Road)}
 
-\item{from_date}{Character date in \code{"dd/mm/yyyy"} format.}
+\item{from_date}{Character date in \code{"dd/mm/yyyy"} format. Default is 1/01/2026}
 
-\item{to_date}{Character date in \code{"dd/mm/yyyy"} format.}
+\item{to_date}{Character date in \code{"dd/mm/yyyy"} format. Default is 31/01/2026}
+
+\item{request_timeout}{Numeric. Maximum time in seconds to wait for the server
+response before aborting. Default is \code{10}.}
 }
 \value{
 A tibble in long format containing:
 \describe{
-\item{DateTime}{Date of observation}
-\item{StationName}{Station name}
-\item{name}{Pollutant name}
+\item{date}{Date of observation}
+\item{station}{Station name}
+\item{parameter}{Pollutant name}
 \item{value}{Daily value}
 }
 }
@@ -28,6 +36,6 @@ Environment Canterbury data portal for one monitoring site.
 }
 \examples{
 \dontrun{
-get_daily_one_station(101, "01/01/2025", "31/01/2025")
+get_daily_one_station(2, "1/01/2026", "31/01/2026")
 }
 }

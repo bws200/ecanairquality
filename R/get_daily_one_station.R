@@ -3,58 +3,67 @@
 #' Downloads daily averaged air quality data from the
 #' Environment Canterbury data portal for one monitoring site.
 #'
-#' @param site_id Numeric or character station identifier.
-#' @param from_date Character date in `"dd/mm/yyyy"` format.
-#' @param to_date Character date in `"dd/mm/yyyy"` format.
+#' @param site_no Numeric or character station identifier. Default is `2` (Riccarton Road)
+#' @param from_date Character date in `"dd/mm/yyyy"` format. Default is `1/01/2026`
+#' @param to_date Character date in `"dd/mm/yyyy"` format. Default is `31/01/2026`
+#' @param request_timeout Numeric. Maximum time in seconds to wait for the server
+#'   response before aborting. Default is `10`.
 #'
 #' @return A tibble in long format containing:
 #' \describe{
-#'   \item{DateTime}{Date of observation}
-#'   \item{StationName}{Station name}
-#'   \item{name}{Pollutant name}
+#'   \item{date}{Date of observation}
+#'   \item{station}{Station name}
+#'   \item{parameter}{Pollutant name}
 #'   \item{value}{Daily value}
 #' }
 #'
 #' @export
 #' @examples
 #' \dontrun{
-#' get_daily_one_station(101, "01/01/2025", "31/01/2025")
+#' get_daily_one_station(2, "1/01/2026", "31/01/2026")
 #' }
 
-get_daily_one_station <- function(site_id, from_date, to_date) {
-  if (length(site_id) != 1 || is.na(site_id) || !nzchar(as.character(site_id))) {
-    stop("`site_id` must be a single non-empty value.", call. = FALSE)
+get_daily_one_station <- function(site_no = 2, from_date = "1/01/2026", to_date = "31/01/2026", request_timeout = 10) {
+
+  if (length(site_no) != 1 || is.na(site_no) || !nzchar(as.character(site_no))) {
+    stop("`site_no` must be a single non-empty value.", call. = FALSE)
   }
 
-  if (!check_date(from_date) || !check_date(to_date)) {
+  # Integrated format check (fixed to stop when invalid)
+  if (any(!check_date_format(c(from_date, to_date)))) {
     stop("Dates must be in 'dd/mm/yyyy' format.", call. = FALSE)
   }
 
-  if (lubridate::dmy(from_date) > lubridate::dmy(to_date)) {
+  # Integrated chronology check
+  if (!check_date_chronology(from_date, to_date)) {
     stop("from_date must be earlier than to_date.", call. = FALSE)
   }
 
-  base_url <- "https://data.ecan.govt.nz:443/data/98/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(daily)/CSV"
+  url <- "https://data.ecan.govt.nz:443/data/98/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(daily)/CSV"
 
   response <- httr::GET(
-    base_url,
+    url,
     query = list(
-      SiteID = site_id,
+      SiteID = site_no,
       StartDate = from_date,
       EndDate = to_date
-    )
+    ),
+    httr::timeout(request_timeout)
   )
 
   httr::stop_for_status(response)
 
-  dat_raw <- httr::content(response, encoding = "UTF-8", as = "text")
+  dat_raw <- httr::content(response, as = "text", encoding = "UTF-8")
 
   dat <- readr::read_csv(
     I(dat_raw),
-    show_col_types = FALSE
+    show_col_types = FALSE,
+    lazy = FALSE
   )
 
-  names(dat) <- stringr::str_replace_all(names(dat), "\\.", "")
+  if (nrow(dat) == 0) {
+    return(tibble::tibble(date = as.Date(character()), station = character(), parameter = character(), value = numeric()))
+  }
 
   dat |>
     tidyr::pivot_longer(
@@ -65,5 +74,12 @@ get_daily_one_station <- function(site_id, from_date, to_date) {
     dplyr::mutate(
       DateTime = lubridate::ymd(DateTime),
       value = janitor::round_half_up(value, 1)
-    )
+    ) |>
+    janitor::clean_names() |>
+    dplyr::rename(
+      date = date_time,
+      station = station_name,
+      parameter = name
+      )
+
 }

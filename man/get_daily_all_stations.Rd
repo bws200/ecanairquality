@@ -5,9 +5,9 @@
 \title{Retrieve daily air quality data from the ECan website}
 \usage{
 get_daily_all_stations(
-  from_date,
-  to_date,
-  on_error = c("warn", "stop", "ignore")
+  from_date = "1/01/2026",
+  to_date = "31/01/2026",
+  on_error = c("ignore", "stop", "warn")
 )
 }
 \arguments{
@@ -15,9 +15,9 @@ get_daily_all_stations(
 
 \item{to_date}{Character. End date in \code{"dd/mm/yyyy"} format.}
 
-\item{on_error}{How to handle a station request failure: \code{"warn"} (the
-default) continues with other stations and warns, \code{"stop"} aborts the
-request, or \code{"ignore"} continues silently.}
+\item{on_error}{How to handle a station request failure: \code{"ignore"} (the default)
+continues silently\verb{,"warn"} continues with other stations and displays a warning
+message, \code{"stop"} aborts the request}
 }
 \value{
 A data frame containing daily air quality measurements in
