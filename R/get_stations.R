@@ -46,7 +46,7 @@ get_stations <- function(request_timeout = 10) {
     dplyr::mutate(
       LatestDateTime = lubridate::parse_date_time(
         LatestDateTime,
-        orders = "dmy_IMS p",
+          orders = c("dmy HMS", "dmy IMS p"),
         tz = "Etc/GMT-12"
         )
     ) |>

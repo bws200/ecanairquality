@@ -1,9 +1,10 @@
 test_that("get_stations parses station metadata and timestamps", {
   response <- structure(list(), class = "response")
-  station_data <- data.frame(
-    site_no = c(101, 202),
-    station_name = c("Alpha", "Beta"),
-    latest_date_time = c("27/08/2026 10:30:00", "26/08/2026 09:15:00")
+  station_data <- paste(
+    "SiteNo,SiteName,LongName,City,AirShed,LatestDateTime",
+    "101,Alpha,Alpha site,Christchurch,Urban,\"27/08/2026 10:30:00\"",
+    "202,Beta,Beta site,Timaru,Timaru,\"26/08/2026 09:15:00\"",
+    sep = "\n"
   )
 
   result <- testthat::with_mocked_bindings(
@@ -17,23 +18,23 @@ test_that("get_stations parses station metadata and timestamps", {
   )
 
   expect_equal(result$site_no, c(101, 202))
-  expect_equal(result$station_name, c("Alpha", "Beta"))
+  expect_equal(result$site_name, c("Alpha", "Beta"))
   expect_s3_class(result$latest_date_time, "POSIXct")
   expect_equal(
     result$latest_date_time,
     as.POSIXct(
       c("2026-08-27 10:30:00", "2026-08-26 09:15:00"),
-      tz = "UTC"
+      tz = "Etc/GMT-12"
     )
   )
 })
 
-test_that("get_stations normalizes the ECan site_name column", {
+test_that("get_stations cleans the ECan site name column", {
   response <- structure(list(), class = "response")
-  station_data <- data.frame(
-    site_no = 101,
-    site_name = "Alpha",
-    latest_date_time = "27/08/2026 10:30:00"
+  station_data <- paste(
+    "SiteNo,SiteName,LongName,City,AirShed,LatestDateTime",
+    "101,Alpha,Alpha site,Christchurch,Urban,\"27/08/2026 10:30:00\"",
+    sep = "\n"
   )
 
   result <- testthat::with_mocked_bindings(
@@ -46,14 +47,14 @@ test_that("get_stations normalizes the ECan site_name column", {
     .package = "httr"
   )
 
-  expect_equal(result$station_name, "Alpha")
-  expect_false("site_name" %in% names(result))
+  expect_equal(result$site_name, "Alpha")
+  expect_false("SiteName" %in% names(result))
 })
 
 test_that("get_daily_one_station reshapes and rounds CSV data", {
   response <- structure(list(), class = "response")
   csv_data <- paste(
-    "DateTime,Station.Name,PM10,Temperature.2m..DegC.",
+    "DateTime,StationName,PM10,Temperature.2m..DegC.",
     "2026-08-27,Alpha,12.35,8.86",
     "2026-08-28,Alpha,4.44,9.04",
     sep = "\n"
@@ -75,11 +76,11 @@ test_that("get_daily_one_station reshapes and rounds CSV data", {
 
   expect_equal(nrow(result), 4)
   expect_equal(
-    result[, c("DateTime", "station_name", "name", "value")],
+    result[, c("date", "station", "parameter", "value")],
     tibble::tibble(
-      DateTime = as.Date(c("2026-08-27", "2026-08-27", "2026-08-28", "2026-08-28")),
-      station_name = rep("Alpha", 4),
-      name = rep(c("PM10", "Temperature2mDegC"), 2),
+      date = as.Date(c("2026-08-27", "2026-08-27", "2026-08-28", "2026-08-28")),
+      station = rep("Alpha", 4),
+      parameter = rep(c("PM10", "Temperature.2m..DegC."), 2),
       value = c(12.4, 8.9, 4.4, 9.0)
     )
   )
@@ -90,7 +91,7 @@ test_that("get_daily_all_stations combines each station result", {
   station_result <- function(site_no, from_date, to_date) {
     tibble::tibble(
       site_no = site_no,
-      DateTime = as.Date("2026-08-27"),
+      date = as.Date("2026-08-27"),
       value = site_no / 10
     )
   }

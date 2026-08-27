@@ -31,13 +31,13 @@ test_that("get_daily_one_station rejects a reversed date range", {
 })
 
 test_that("get_daily_all_stations can continue after a station failure", {
-  station_data <- tibble::tibble(SiteNo = c(101, 202))
+  station_data <- tibble::tibble(site_no = c(101, 202))
   station_result <- function(site_no, from_date, to_date) {
     if (site_no == 101) {
       stop("station unavailable", call. = FALSE)
     }
 
-    tibble::tibble(SiteNo = site_no)
+    tibble::tibble(site_no = site_no)
   }
 
   testthat::expect_warning(
@@ -45,7 +45,8 @@ test_that("get_daily_all_stations can continue after a station failure", {
       {
         get_daily_all_stations(
           from_date = "27/08/2026",
-          to_date = "27/08/2026"
+          to_date = "27/08/2026",
+          on_error = "warn"
         )
       },
       get_stations = function() station_data,
@@ -55,5 +56,5 @@ test_that("get_daily_all_stations can continue after a station failure", {
     "station unavailable"
   )
 
-  expect_equal(result$SiteNo, 202)
+  expect_equal(result$site_no, 202)
 })
