@@ -79,6 +79,27 @@ Use `dev_mode = TRUE` only when deliberately updating the source checkout's
 `inst/extdata/nz_holiday_history.csv`; installed packages write to the
 user-level package data directory.
 
+## Trend analysis example
+
+The repository includes
+[`examples/theil_sen_trend_analysis.qmd`](examples/theil_sen_trend_analysis.qmd),
+which demonstrates an end-to-end PM10 and PM2.5 trend workflow using
+`openair::TheilSen()`. It retrieves ECan data, applies explicit site
+decisions, creates coverage plots, calculates trends, and exports the exact
+inputs used for analysis.
+
+The report requires Quarto and the optional analysis packages:
+
+```r
+install.packages(c("dplyr", "knitr", "lubridate", "openair", "readr", "tidyr"))
+```
+
+Render it from the repository root:
+
+```text
+quarto render examples/theil_sen_trend_analysis.qmd
+```
+
 ## Development
 
 Regenerate package documentation and the namespace:

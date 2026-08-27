@@ -1,0 +1,218 @@
+---
+author: Ben Scott
+date: "`r Sys.Date()`"
+title: "Theil-Sen Trend Analysis Using Environment Canterbury Data"
+format:
+  html:
+    self-contained: true
+    toc: true
+    toc-location: left
+execute:
+  warning: false
+  message: false
+params:
+  from_date: "01/01/2015"
+  to_date: "31/12/2024"
+  output_dir: "outputs"
+---
+
+```{r}
+#| label: setup
+
+knitr::opts_chunk$set(echo = FALSE)
+
+required_packages <- c(
+  "dplyr",
+  "knitr",
+  "lubridate",
+  "openair",
+  "readr",
+  "tidyr"
+)
+missing_packages <- required_packages[
+  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
+]
+
+if (length(missing_packages) > 0) {
+  stop(
+    "Install the required analysis packages: ",
+    paste(missing_packages, collapse = ", "),
+    call. = FALSE
+  )
+}
+
+library(dplyr, warn.conflicts = FALSE)
+library(lubridate, warn.conflicts = FALSE)
+library(openair, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+```
+
+## Introduction
+
+This report retrieves daily air-quality data from the Environment Canterbury
+(ECan) data portal, prepares PM10 and PM2.5 data for OpenAir, checks coverage,
+and calculates Theil-Sen trends.
+
+The dates, included sites, and exclusions are analysis decisions. Review them
+before each annual run.
+
+## Data retrieval
+
+`get_daily_all_stations()` retrieves daily observations for every station
+available from ECan for the requested period.
+
+```{r}
+#| label: get-data
+
+df_final_long <- ecanairquality::get_daily_all_stations(
+  from_date = format(dmy(params$from_date), "%d/%m/%Y"),
+  to_date = format(dmy(params$to_date), "%d/%m/%Y")
+)
+```
+
+The returned data is tidy and long-format, with one row per station, date, and
+measurement.
+
+## Data cleaning and analysis decisions
+
+OpenAir expects a `date` column and pollutant measurements in separate numeric
+columns. The following transformation keeps only PM10 and PM2.5, creates the
+OpenAir station column, and adds coverage fields useful for review.
+
+```{r}
+#| label: data-cleaning
+
+pollutant_names <- c("PM10 (ug/m3)", "PM25 (ug/m3)")
+
+df_daily_pm <- df_final_long |>
+  filter(name %in% pollutant_names) |>
+  pivot_wider(
+    names_from = name,
+    values_from = value
+  ) |>
+  rename(
+    date = DateTime,
+    site = StationName,
+    PM10 = `PM10 (ug/m3)`,
+    PM25 = `PM25 (ug/m3)`
+  ) |>
+  mutate(
+    date = ymd(date, tz = "Pacific/Auckland"),
+    month = month(date),
+    year = year(date),
+    days_per_month = days_in_month(date)
+  )
+```
+
+The default exclusions below reflect the current ECan trend-analysis
+decisions. Update them when monitoring sites move, close, or change purpose.
+
+```{r}
+#| label: apply-analysis-decisions
+
+excluded_sites <- c("Washdyke Flat Road", "Waimate Stadium", "St Albans EP")
+
+df_daily_pm_clean <- df_daily_pm |>
+  filter(!site %in% excluded_sites)
+```
+
+## Coverage checks
+
+Use summary plots to inspect missing periods and confirm that the selected
+sites and dates are suitable before calculating trends.
+
+```{r}
+#| label: pm10-summary-plot
+#| fig-width: 20
+#| fig-height: 30
+
+openair::summaryPlot(
+  df_daily_pm_clean |> select(date, site, PM10),
+  pollutant = "PM10",
+  type = "site",
+  fontsize = 20
+)
+```
+
+```{r}
+#| label: pm25-summary-plot
+#| fig-width: 20
+#| fig-height: 30
+
+openair::summaryPlot(
+  df_daily_pm_clean |> select(date, site, PM25),
+  pollutant = "PM25",
+  type = "site",
+  fontsize = 20
+)
+```
+
+The plots should be reviewed for long gaps before accepting the trend output.
+In particular, investigate gaps longer than five months and apply the
+relevant period or site decision before proceeding.
+
+## Theil-Sen analysis
+
+Theil-Sen estimates are calculated separately for PM10 and PM2.5, with
+seasonality removed and a 75% data threshold.
+
+```{r}
+#| label: trend-analysis-pm10
+#| fig-width: 20
+#| fig-height: 20
+
+openair::TheilSen(
+  df_daily_pm_clean,
+  ylab = "PM10 (ug/m3)",
+  pollutant = "PM10",
+  deseason = TRUE,
+  date.format = "%Y",
+  type = "site",
+  data.thresh = 75,
+  fontsize = 30
+)
+```
+
+```{r}
+#| label: trend-analysis-pm25
+#| fig-width: 20
+#| fig-height: 20
+
+openair::TheilSen(
+  df_daily_pm_clean,
+  ylab = "PM2.5 (ug/m3)",
+  pollutant = "PM25",
+  deseason = TRUE,
+  date.format = "%Y",
+  type = "site",
+  data.thresh = 75,
+  fontsize = 30
+)
+```
+
+## Data export
+
+Save the exact retrieved long-format data and the cleaned analysis data so
+results can be audited or reproduced without another ECan request.
+
+```{r}
+#| label: data-export
+
+dir.create(params$output_dir, recursive = TRUE, showWarnings = FALSE)
+
+date_stamp <- Sys.Date()
+
+readr::write_csv(
+  df_final_long,
+  file.path(params$output_dir, paste0("ecan_daily_long_", date_stamp, ".csv"))
+)
+
+readr::write_csv(
+  df_daily_pm_clean,
+  file.path(params$output_dir, paste0("ecan_pm_trend_input_", date_stamp, ".csv"))
+)
+```
+
+The generated files record the source data and the analysis-ready data used by
+OpenAir. Keep them with the rendered report when results need to be compared
+between runs.
