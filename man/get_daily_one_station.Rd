@@ -26,3 +26,8 @@ A tibble in long format containing:
 Downloads daily averaged air quality data from the
 Environment Canterbury data portal for one monitoring site.
 }
+\examples{
+\dontrun{
+get_daily_one_station(101, "01/01/2025", "31/01/2025")
+}
+}

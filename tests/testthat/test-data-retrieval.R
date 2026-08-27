@@ -11,6 +11,7 @@ test_that("get_stations parses station metadata and timestamps", {
       get_stations()
     },
     GET = function(...) response,
+    http_error = function(...) FALSE,
     stop_for_status = function(...) invisible(NULL),
     content = function(...) station_data,
     .package = "httr"
@@ -60,6 +61,66 @@ test_that("get_daily_one_station reshapes and rounds CSV data", {
       name = rep(c("PM10", "Temperature2mDegC"), 2),
       value = c(12.4, 8.9, 4.4, 9.0)
     )
+  )
+})
+
+test_that("retrieval functions report HTTP failures", {
+  response <- structure(list(), class = "response")
+
+  expect_error(
+    testthat::with_mocked_bindings(
+      {
+        get_stations()
+      },
+      GET = function(...) response,
+      http_error = function(...) TRUE,
+      status_code = function(...) 503,
+      .package = "httr"
+    ),
+    "Station metadata request failed with HTTP status 503"
+  )
+
+  expect_error(
+    testthat::with_mocked_bindings(
+      {
+        get_daily_one_station(101, "27/08/2026", "27/08/2026")
+      },
+      GET = function(...) response,
+      http_error = function(...) TRUE,
+      status_code = function(...) 503,
+      .package = "httr"
+    ),
+    "Daily data request for station 101 failed with HTTP status 503"
+  )
+})
+
+test_that("retrieval functions reject malformed response schemas", {
+  response <- structure(list(), class = "response")
+
+  expect_error(
+    testthat::with_mocked_bindings(
+      {
+        get_stations()
+      },
+      GET = function(...) response,
+      http_error = function(...) FALSE,
+      content = function(...) data.frame(SiteNo = 101),
+      .package = "httr"
+    ),
+    "missing columns: StationName, LatestDateTime"
+  )
+
+  expect_error(
+    testthat::with_mocked_bindings(
+      {
+        get_daily_one_station(101, "27/08/2026", "27/08/2026")
+      },
+      GET = function(...) response,
+      http_error = function(...) FALSE,
+      content = function(...) "DateTime,StationName\n2026-08-27,Alpha",
+      .package = "httr"
+    ),
+    "no measurement columns"
   )
 })
 

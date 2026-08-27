@@ -70,10 +70,10 @@ external services and current remote data.
   extending the data pipeline.
 - Prefer the existing explicit `pkg::fun()` style for package calls and keep
   roxygen imports synchronized with implementation changes.
-- Remote HTTP responses are checked with `httr`; station-list failures are
-  surfaced with `stop_for_status()`, while invalid or failed single-station
-  requests currently return an empty tibble so the all-stations bind can
-  continue. Preserve this distinction unless intentionally changing the API.
+- Remote HTTP responses are checked with `httr` and failures are surfaced with
+  contextual errors. Invalid dates, malformed station metadata, and malformed
+  daily responses should fail explicitly; preserve empty results only for valid
+  requests that genuinely contain no observations.
 - Holiday parsing is intentionally tolerant of changing source labels:
   normalize known term/holiday variants in the existing `case_when()` style,
   then use title case and whitespace squishing as the fallback.

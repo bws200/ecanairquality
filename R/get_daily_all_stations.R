@@ -12,12 +12,12 @@
 #' @export
 get_daily_all_stations <- function(from_date, to_date) {
 
-  from <- lubridate::dmy(from_date)
-  to <- lubridate::dmy(to_date)
-
-  if (is.na(from) || is.na(to)) {
+  if (!check_date(from_date) || !check_date(to_date)) {
     stop("Dates must be in 'dd/mm/yyyy' format.", call. = FALSE)
   }
+
+  from <- lubridate::dmy(from_date)
+  to <- lubridate::dmy(to_date)
 
   if (from > to) {
     stop("from_date must be earlier than to_date.", call. = FALSE)

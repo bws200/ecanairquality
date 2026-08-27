@@ -5,7 +5,7 @@ Title: Helpful functions to get data and generate plots for ecan air
 Version: 0.1.1
 Authors@R: 
     person("Ben", "Scott", , "ben.scott@ecan.govt.nz", role = c("aut", "cre"))
-Description: Retrieves data from the Ecan data portal website. Also doe
+Description: Retrieves data from the Ecan data portal website. Also does
     some basic plotting examples.
 License: MIT + file LICENSE
 URL: https://github.com/bws200/ecanairquality
@@ -22,6 +22,7 @@ Imports:
     purrr,
     readr,
     rlang,
+    rvest,
     stringr,
     tibble,
     tidyr,

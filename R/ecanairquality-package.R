@@ -32,3 +32,21 @@
 #' @importFrom tidyr pivot_longer
 ## usethis namespace: end
 NULL
+
+utils::globalVariables(c(
+  "Category",
+  "Date",
+  "DateTime",
+  "Day_OfWeek",
+  "DTEND",
+  "DTSTART",
+  "End_Date",
+  "End_Raw",
+  "Event",
+  "SUMMARY",
+  "Source",
+  "Start_Date",
+  "Start_Raw",
+  "StationName",
+  "value"
+))

@@ -6,6 +6,7 @@ test_that("check_date accepts valid dd/mm/yyyy dates", {
 test_that("check_date rejects invalid dates and formats", {
   expect_false(check_date("31/02/2025"))
   expect_false(check_date("2025-01-01"))
+  expect_false(check_date(NA_character_))
+  expect_false(check_date(20250101))
   expect_error(check_date(c("01/01/2025", "02/01/2025")), "single value")
 })
-1

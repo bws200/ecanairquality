@@ -3,6 +3,7 @@
 export(check_date)
 export(download_school_holidays)
 export(get_daily_all_stations)
+export(get_daily_one_station)
 export(get_nz_holidays)
 export(get_school_holiday_urls)
 export(get_school_holidays)
