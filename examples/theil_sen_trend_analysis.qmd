@@ -45,6 +45,24 @@ library(dplyr, warn.conflicts = FALSE)
 library(lubridate, warn.conflicts = FALSE)
 library(openair, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
+
+if (requireNamespace("ecanairquality", quietly = TRUE)) {
+  get_daily_all_stations_fn <- ecanairquality::get_daily_all_stations
+} else {
+  project_root <- if (file.exists("DESCRIPTION")) "." else ".."
+  report_env <- new.env(parent = globalenv())
+  source_files <- list.files(
+    file.path(project_root, "R"),
+    pattern = "\\.R$",
+    full.names = TRUE
+  )
+
+  for (source_file in source_files) {
+    sys.source(source_file, envir = report_env)
+  }
+
+  get_daily_all_stations_fn <- report_env$get_daily_all_stations
+}
 ```
 
 ## Introduction
@@ -64,7 +82,7 @@ available from ECan for the requested period.
 ```{r}
 #| label: get-data
 
-df_final_long <- ecanairquality::get_daily_all_stations(
+df_final_long <- get_daily_all_stations_fn(
   from_date = format(dmy(params$from_date), "%d/%m/%Y"),
   to_date = format(dmy(params$to_date), "%d/%m/%Y")
 )
@@ -118,38 +136,24 @@ df_daily_pm_clean <- df_daily_pm |>
 
 ## Coverage checks
 
-Use summary plots to inspect missing periods and confirm that the selected
-sites and dates are suitable before calculating trends.
+Review the number of observations by site and year before accepting the trend
+output. Investigate gaps longer than five months and apply the relevant period
+or site decision before proceeding.
 
 ```{r}
-#| label: pm10-summary-plot
-#| fig-width: 20
-#| fig-height: 30
+#| label: coverage-check
 
-openair::summaryPlot(
-  df_daily_pm_clean |> select(date, site, PM10),
-  pollutant = "PM10",
-  type = "site",
-  fontsize = 20
-)
+coverage <- df_daily_pm_clean |>
+  mutate(year = year(date)) |>
+  group_by(site, year) |>
+  summarise(
+    days_with_pm10 = sum(!is.na(PM10)),
+    days_with_pm25 = sum(!is.na(PM25)),
+    .groups = "drop"
+  )
+
+coverage
 ```
-
-```{r}
-#| label: pm25-summary-plot
-#| fig-width: 20
-#| fig-height: 30
-
-openair::summaryPlot(
-  df_daily_pm_clean |> select(date, site, PM25),
-  pollutant = "PM25",
-  type = "site",
-  fontsize = 20
-)
-```
-
-The plots should be reviewed for long gaps before accepting the trend output.
-In particular, investigate gaps longer than five months and apply the
-relevant period or site decision before proceeding.
 
 ## Theil-Sen analysis
 

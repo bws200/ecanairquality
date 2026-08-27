@@ -25,6 +25,11 @@ get_stations <- function() {
   station_data <- httr::content(response_stations, encoding = "UTF-8") |>
     tibble::as_tibble()
 
+  if (!"StationName" %in% names(station_data) &&
+      "SiteName" %in% names(station_data)) {
+    station_data <- dplyr::rename(station_data, StationName = SiteName)
+  }
+
   required_columns <- c("SiteNo", "StationName", "LatestDateTime")
   missing_columns <- setdiff(required_columns, names(station_data))
 

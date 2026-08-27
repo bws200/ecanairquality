@@ -4,12 +4,20 @@
 \alias{get_daily_all_stations}
 \title{Retrieve daily air quality data from the ECan website}
 \usage{
-get_daily_all_stations(from_date, to_date)
+get_daily_all_stations(
+  from_date,
+  to_date,
+  on_error = c("warn", "stop", "ignore")
+)
 }
 \arguments{
 \item{from_date}{Character. Start date in \code{"dd/mm/yyyy"} format.}
 
 \item{to_date}{Character. End date in \code{"dd/mm/yyyy"} format.}
+
+\item{on_error}{How to handle a station request failure: \code{"warn"} (the
+default) continues with other stations and warns, \code{"stop"} aborts the
+request, or \code{"ignore"} continues silently.}
 }
 \value{
 A data frame containing daily air quality measurements in

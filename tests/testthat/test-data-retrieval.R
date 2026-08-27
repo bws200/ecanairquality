@@ -29,6 +29,28 @@ test_that("get_stations parses station metadata and timestamps", {
   )
 })
 
+test_that("get_stations normalizes the ECan SiteName column", {
+  response <- structure(list(), class = "response")
+  station_data <- data.frame(
+    SiteNo = 101,
+    SiteName = "Alpha",
+    LatestDateTime = "27/08/2026 10:30:00"
+  )
+
+  result <- testthat::with_mocked_bindings(
+    {
+      get_stations()
+    },
+    GET = function(...) response,
+    http_error = function(...) FALSE,
+    content = function(...) station_data,
+    .package = "httr"
+  )
+
+  expect_equal(result$StationName, "Alpha")
+  expect_false("SiteName" %in% names(result))
+})
+
 test_that("get_daily_one_station reshapes and rounds CSV data", {
   response <- structure(list(), class = "response")
   csv_data <- paste(

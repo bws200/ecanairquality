@@ -85,7 +85,7 @@ The repository includes
 [`examples/theil_sen_trend_analysis.qmd`](examples/theil_sen_trend_analysis.qmd),
 which demonstrates an end-to-end PM10 and PM2.5 trend workflow using
 `openair::TheilSen()`. It retrieves ECan data, applies explicit site
-decisions, creates coverage plots, calculates trends, and exports the exact
+decisions, reports coverage, calculates trends, and exports the exact
 inputs used for analysis.
 
 The report requires Quarto and the optional analysis packages:

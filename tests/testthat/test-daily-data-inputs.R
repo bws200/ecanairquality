@@ -29,3 +29,31 @@ test_that("get_daily_one_station rejects a reversed date range", {
     "from_date must be earlier than to_date"
   )
 })
+
+test_that("get_daily_all_stations can continue after a station failure", {
+  station_data <- tibble::tibble(SiteNo = c(101, 202))
+  station_result <- function(site_id, from_date, to_date) {
+    if (site_id == 101) {
+      stop("station unavailable", call. = FALSE)
+    }
+
+    tibble::tibble(SiteNo = site_id)
+  }
+
+  testthat::expect_warning(
+    result <- testthat::with_mocked_bindings(
+      {
+        get_daily_all_stations(
+          from_date = "27/08/2026",
+          to_date = "27/08/2026"
+        )
+      },
+      get_stations = function() station_data,
+      get_daily_one_station = station_result,
+      .package = "ecanairquality"
+    ),
+    "station unavailable"
+  )
+
+  expect_equal(result$SiteNo, 202)
+})
