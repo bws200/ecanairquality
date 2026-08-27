@@ -45,10 +45,7 @@ get_daily_one_station <- function(site_id, from_date, to_date) {
     )
   )
 
-  ecan_stop_for_status(
-    response,
-    paste0("Daily data request for station ", site_id)
-  )
+  httr::stop_for_status(response)
 
   dat_raw <- httr::content(response, encoding = "UTF-8", as = "text")
 
@@ -59,41 +56,6 @@ get_daily_one_station <- function(site_id, from_date, to_date) {
 
   names(dat) <- stringr::str_replace_all(names(dat), "\\.", "")
 
-  required_columns <- c("DateTime", "StationName")
-  missing_columns <- setdiff(required_columns, names(dat))
-  if (length(missing_columns) > 0) {
-    stop(
-      "Daily data response is missing columns: ",
-      paste(missing_columns, collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  measurement_columns <- setdiff(names(dat), required_columns)
-  if (length(measurement_columns) == 0) {
-    stop(
-      "Daily data response contains no measurement columns.",
-      call. = FALSE
-    )
-  }
-
-  parsed_dates <- lubridate::ymd(dat$DateTime, quiet = TRUE)
-  supplied_dates <- !is.na(dat$DateTime) &
-    nzchar(trimws(as.character(dat$DateTime)))
-  if (any(supplied_dates & is.na(parsed_dates))) {
-    stop(
-      "Daily data response contains invalid DateTime values.",
-      call. = FALSE
-    )
-  }
-
-  if (!all(vapply(dat[measurement_columns], is.numeric, logical(1)))) {
-    stop(
-      "Daily data response contains non-numeric measurement columns.",
-      call. = FALSE
-    )
-  }
-
   dat |>
     tidyr::pivot_longer(
       cols = -c(DateTime, StationName),
@@ -101,7 +63,7 @@ get_daily_one_station <- function(site_id, from_date, to_date) {
       values_to = "value"
     ) |>
     dplyr::mutate(
-      DateTime = lubridate::ymd(DateTime, quiet = TRUE),
+      DateTime = lubridate::ymd(DateTime),
       value = janitor::round_half_up(value, 1)
     )
 }

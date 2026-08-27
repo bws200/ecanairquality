@@ -20,38 +20,18 @@ get_stations <- function() {
     "https://data.ecan.govt.nz/data/23/Air/Air%20quality%20sites%20monitored/CSV"
   )
 
-  ecan_stop_for_status(response_stations, "Station metadata request")
+  httr::stop_for_status(response_stations)
 
   station_data <- httr::content(response_stations, encoding = "UTF-8") |>
     tibble::as_tibble()
 
   if (!"StationName" %in% names(station_data) &&
       "SiteName" %in% names(station_data)) {
-    station_data <- dplyr::rename(station_data, StationName = SiteName)
-  }
-
-  required_columns <- c("SiteNo", "StationName", "LatestDateTime")
-  missing_columns <- setdiff(required_columns, names(station_data))
-
-  if (length(missing_columns) > 0) {
-    stop(
-      "Station metadata response is missing columns: ",
-      paste(missing_columns, collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  parsed_dates <- lubridate::dmy_hms(station_data$LatestDateTime, quiet = TRUE)
-  supplied_dates <- !is.na(station_data$LatestDateTime) &
-    nzchar(trimws(as.character(station_data$LatestDateTime)))
-
-  if (any(supplied_dates & is.na(parsed_dates))) {
-    stop(
-      "Station metadata response contains invalid LatestDateTime values.",
-      call. = FALSE
-    )
+    names(station_data)[names(station_data) == "SiteName"] <- "StationName"
   }
 
   station_data |>
-    dplyr::mutate(LatestDateTime = parsed_dates)
+    dplyr::mutate(
+      LatestDateTime = lubridate::dmy_hms(LatestDateTime)
+    )
 }

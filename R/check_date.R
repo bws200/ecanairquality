@@ -15,15 +15,5 @@
 #' check_date("2025-01-01")
 check_date <- function(date) {
 
-  if (length(date) != 1) {
-    stop("`date` must be a single value.", call. = FALSE)
-  }
-
-  if (!is.character(date) ||
-      is.na(date) ||
-      !stringr::str_detect(date, "^\\d{2}/\\d{2}/\\d{4}$")) {
-    return(FALSE)
-  }
-
   !is.na(lubridate::dmy(date, quiet = TRUE))
 }
