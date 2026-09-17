@@ -7,7 +7,7 @@ Authors@R:
 Description: Retrieves data from the Ecan data portal website. Also does
     some basic plotting examples.
 License: MIT + file LICENSE
-URL: https://github.com/bws200/ecanairquality
+URL: https://bws200.github.io/ecanairquality, https://github.com/bws200/ecanairquality
 Depends: 
     R (>= 4.1.0)
 Imports:

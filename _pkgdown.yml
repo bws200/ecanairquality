@@ -1,0 +1,54 @@
+url: https://bws200.github.io/ecanairquality
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#176b87"
+    heading_font: system-ui
+    body_font: system-ui
+
+navbar:
+  structure:
+    left: [reference, articles, news]
+    right: [github]
+  components:
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Theil-Sen trend analysis
+        href: articles/theil-sen-trend-analysis.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/bws200/ecanairquality
+      aria-label: GitHub
+
+reference:
+- title: Air-quality data
+  contents:
+  - check_date_format
+  - check_date_chronology
+  - get_stations
+  - get_daily_one_station
+  - get_daily_all_stations
+- title: New Zealand holidays
+  contents:
+  - get_nz_holidays
+  - get_school_holidays
+  - get_school_holiday_urls
+  - download_school_holidays
+  - parse_school_holidays
+  - update_holiday_history
+
+articles:
+- title: Analysis workflows
+  contents:
+  - theil-sen-trend-analysis
+
+news:
+  releases:
+  - text: Version 0.1.1
+    href: news/index.html
