@@ -45,10 +45,10 @@ get_stations <- function(request_timeout = 10) {
   dat |>
     dplyr::mutate(
       LatestDateTime = lubridate::parse_date_time(
-        LatestDateTime,
-          orders = c("dmy HMS", "dmy IMS p"),
+        .data$LatestDateTime,
+        orders = c("dmy HMS", "dmy IMS p"),
         tz = "Etc/GMT-12"
-        )
+      )
     ) |>
     janitor::clean_names()
 }

@@ -72,14 +72,14 @@ get_daily_one_station <- function(site_no = 2, from_date = "1/01/2026", to_date 
       values_to = "value"
     ) |>
     dplyr::mutate(
-      DateTime = lubridate::ymd(DateTime),
-      value = janitor::round_half_up(value, 1)
+      DateTime = lubridate::ymd(.data$DateTime),
+      value = janitor::round_half_up(.data$value, 1)
     ) |>
     janitor::clean_names() |>
     dplyr::rename(
-      date = date_time,
-      station = station_name,
-      parameter = name
-      )
+      date = .data$date_time,
+      station = .data$station_name,
+      parameter = .data$name
+    )
 
 }

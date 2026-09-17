@@ -1,7 +1,6 @@
 Type: Package
 Package: ecanairquality
-Title: Helpful functions to get data and generate plots for ecan air
-    quality data
+Title: Helpful Functions to Get Data and Generate Plots for Ecan Air Quality Data
 Version: 0.1.1
 Authors@R: 
     person("Ben", "Scott", , "ben.scott@ecan.govt.nz", role = c("aut", "cre"))
