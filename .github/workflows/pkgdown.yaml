@@ -32,11 +32,11 @@ jobs:
       - name: Set up R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, any::rcmdcheck
+          extra-packages: any::pkgdown
           needs: website
 
       - name: Build site
-        run: pkgdown::build_site(new_process = FALSE, install = FALSE)
+        run: pkgdown::build_site_github_pages(new_process = FALSE)
         shell: Rscript {0}
 
       - name: Configure GitHub Pages
@@ -50,3 +50,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
