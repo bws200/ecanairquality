@@ -81,12 +81,21 @@ user-level package data directory.
 
 ## Trend analysis example
 
-The repository includes
+The package includes the vignette
+[`theil-sen-trend-analysis`](vignettes/theil-sen-trend-analysis.Rmd), which
+describes an end-to-end PM10 and PM2.5 trend workflow using
+`openair::TheilSen()`. It is not evaluated during package checks because it
+retrieves live ECan data. Build it locally with:
+
+```r
+vignette("theil-sen-trend-analysis", package = "ecanairquality")
+```
+
+The repository also includes the parameterized Quarto report
 [`examples/theil_sen_trend_analysis.qmd`](examples/theil_sen_trend_analysis.qmd),
-which demonstrates an end-to-end PM10 and PM2.5 trend workflow using
-`openair::TheilSen()`. It retrieves ECan data, applies explicit site
-decisions, reports coverage, calculates trends, and exports the exact
-inputs used for analysis.
+which is better suited to scheduled or fully rendered analyses. It retrieves
+ECan data, applies explicit site decisions, reports coverage, calculates
+trends, and exports the exact inputs used for analysis.
 
 The report requires Quarto and the optional analysis packages:
 
@@ -94,7 +103,7 @@ The report requires Quarto and the optional analysis packages:
 install.packages(c("dplyr", "knitr", "lubridate", "openair", "readr", "tidyr"))
 ```
 
-Render it from the repository root:
+Render the Quarto report from the repository root:
 
 ```text
 quarto render examples/theil_sen_trend_analysis.qmd

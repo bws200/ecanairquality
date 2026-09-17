@@ -1,0 +1,177 @@
+---
+title: "Theil-Sen Trend Analysis with ECan Data"
+author: "Ben Scott"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Theil-Sen Trend Analysis with ECan Data}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+This vignette describes an end-to-end workflow for retrieving Environment
+Canterbury (ECan) daily air-quality data and estimating PM10 and PM2.5 trends
+with `openair::TheilSen()`.
+
+The code is deliberately not evaluated during package builds. It requests live
+remote data and can take several minutes to run, so execute the chunks
+interactively when a current analysis is required. The original parameterized
+Quarto report in `examples/theil_sen_trend_analysis.qmd` remains available for
+scheduled or fully rendered analyses.
+
+## Prerequisites
+
+Install the optional analysis packages before running the workflow:
+
+```{r packages}
+install.packages(c("dplyr", "knitr", "lubridate", "openair", "readr", "tidyr"))
+```
+
+Load the package and analysis tools:
+
+```{r libraries}
+library(dplyr, warn.conflicts = FALSE)
+library(lubridate, warn.conflicts = FALSE)
+library(openair, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+library(ecanairquality)
+```
+
+## Retrieve daily data
+
+Choose the analysis period explicitly. Dates supplied to the package use
+`dd/mm/yyyy` format.
+
+```{r get-data}
+from_date <- "01/01/2015"
+to_date <- "31/12/2024"
+
+df_final_long <- get_daily_all_stations(
+  from_date = from_date,
+  to_date = to_date
+)
+```
+
+The result is a tidy, long-format data frame with one row per station, date,
+and measurement.
+
+## Prepare PM data
+
+`openair` expects a `date` column and pollutant measurements in separate
+numeric columns. Keep only the pollutants used in this analysis and reshape
+the data into that format:
+
+```{r data-cleaning}
+pollutant_names <- c("PM10 (ug/m3)", "PM25 (ug/m3)")
+
+df_daily_pm <- df_final_long |>
+  filter(name %in% pollutant_names) |>
+  pivot_wider(
+    names_from = name,
+    values_from = value
+  ) |>
+  rename(
+    date = DateTime,
+    site = StationName,
+    PM10 = `PM10 (ug/m3)`,
+    PM25 = `PM25 (ug/m3)`
+  ) |>
+  mutate(
+    date = ymd(date, tz = "Pacific/Auckland"),
+    month = month(date),
+    year = year(date),
+    days_per_month = days_in_month(date)
+  )
+```
+
+Apply exclusions based on documented monitoring-site decisions. Review these
+choices whenever sites move, close, or change purpose:
+
+```{r site-decisions}
+excluded_sites <- c("Washdyke Flat Road", "Waimate Stadium", "St Albans EP")
+
+df_daily_pm_clean <- df_daily_pm |>
+  filter(!site %in% excluded_sites)
+```
+
+## Check coverage
+
+Review coverage by site and year before accepting trend results. Large gaps
+may require a site-specific decision or a shorter analysis period.
+
+```{r coverage}
+coverage <- df_daily_pm_clean |>
+  group_by(site, year) |>
+  summarise(
+    days_with_pm10 = sum(!is.na(PM10)),
+    days_with_pm25 = sum(!is.na(PM25)),
+    .groups = "drop"
+  )
+
+coverage
+```
+
+## Estimate Theil-Sen trends
+
+The following calls estimate trends separately for PM10 and PM2.5, remove
+seasonality, and require at least 75% data coverage:
+
+```{r trend-pm10}
+openair::TheilSen(
+  df_daily_pm_clean,
+  ylab = "PM10 (ug/m3)",
+  pollutant = "PM10",
+  deseason = TRUE,
+  date.format = "%Y",
+  type = "site",
+  data.thresh = 75
+)
+```
+
+```{r trend-pm25}
+openair::TheilSen(
+  df_daily_pm_clean,
+  ylab = "PM2.5 (ug/m3)",
+  pollutant = "PM25",
+  deseason = TRUE,
+  date.format = "%Y",
+  type = "site",
+  data.thresh = 75
+)
+```
+
+Interpret the estimates alongside the coverage table and the site history.
+Theil-Sen results are sensitive to the selected period, site exclusions, and
+data completeness.
+
+## Save analysis inputs
+
+Save both the retrieved long-format data and the cleaned trend-analysis input
+so the analysis can be audited without immediately repeating the remote
+request:
+
+```{r export}
+output_dir <- "outputs"
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+date_stamp <- Sys.Date()
+
+readr::write_csv(
+  df_final_long,
+  file.path(output_dir, paste0("ecan_daily_long_", date_stamp, ".csv"))
+)
+
+readr::write_csv(
+  df_daily_pm_clean,
+  file.path(output_dir, paste0("ecan_pm_trend_input_", date_stamp, ".csv"))
+)
+```
